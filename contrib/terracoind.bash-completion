@@ -1,12 +1,12 @@
-# bash programmable completion for bitcoind(1)
+# bash programmable completion for terracoind(1)
 # Copyright (c) 2012 Christian von Roques <roques@mti.ag>
 # Distributed under the MIT/X11 software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-have bitcoind && {
+have terracoind && {
 
-# call $bitcoind for RPC
-_bitcoin_rpc() {
+# call $terracoind for RPC
+_terracoin_rpc() {
     # determine already specified args necessary for RPC
     local rpcargs=()
     for i in ${COMP_LINE}; do
@@ -16,23 +16,23 @@ _bitcoin_rpc() {
                 ;;
         esac
     done
-    $bitcoind "${rpcargs[@]}" "$@"
+    $terracoind "${rpcargs[@]}" "$@"
 }
 
-# Add bitcoin accounts to COMPREPLY
-_bitcoin_accounts() {
+# Add terracoin accounts to COMPREPLY
+_terracoin_accounts() {
     local accounts
-    accounts=$(_bitcoin_rpc listaccounts | awk '/".*"/ { a=$1; gsub(/"/, "", a); print a}')
+    accounts=$(_terracoin_rpc listaccounts | awk '/".*"/ { a=$1; gsub(/"/, "", a); print a}')
     COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "$accounts" -- "$cur" ) )
 }
 
-_bitcoind() {
+_terracoind() {
     local cur prev words=() cword
-    local bitcoind
+    local terracoind
 
-    # save and use original argument to invoke bitcoind
-    # bitcoind might not be in $PATH
-    bitcoind="$1"
+    # save and use original argument to invoke terracoind
+    # terracoind might not be in $PATH
+    terracoind="$1"
 
     COMPREPLY=()
     _get_comp_words_by_ref -n = cur prev words cword
@@ -84,7 +84,7 @@ _bitcoind() {
 
             # only parse --help if senseful
             if [[ -z "$cur" || "$cur" =~ ^- ]]; then
-                helpopts=$($bitcoind --help 2>&1 | awk '$1 ~ /^-/ { sub(/=.*/, "="); print $1 }' )
+                helpopts=$($terracoind --help 2>&1 | awk '$1 ~ /^-/ { sub(/=.*/, "="); print $1 }' )
             fi
 
             # only parse help if senseful
@@ -103,7 +103,7 @@ _bitcoind() {
     esac
 }
 
-complete -F _bitcoind bitcoind
+complete -F _terracoind terracoind
 }
 
 # Local variables:

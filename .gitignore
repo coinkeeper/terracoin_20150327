@@ -4,7 +4,7 @@
 src/*.exe
 src/*/*.exe
 src/bitcoin
-src/bitcoind
+src/terracoind
 src/test/test_bitcoin
 src/qt/test/test_bitcoin-qt
 
@@ -60,8 +60,8 @@ src/qt/res/.dirstamp
 # Compilation and Qt preprocessor part
 *.qm
 Makefile
-bitcoin-qt
-Bitcoin-Qt.app
+terracoin-qt
+Terracoin-Qt.app
 
 # Unit-tests
 Makefile.test

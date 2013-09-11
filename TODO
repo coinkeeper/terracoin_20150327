@@ -1,0 +1,28 @@
+[/] genesis block
+    [/] including all networks
+        [ ] regnet
+[X] checkpoints
+[X] magic bytes
+[X] subsidy & max coins
+[X] block reward
+[X] nInterval
+[X] getnextworkrequired
+[X] seeds (official + bootstrap)
+    [X] bootstrap (1100)
+[ ] alert key
+[ ] trxnotifier
+[ ] contrib
+    [X] makeseed
+    [/] trxnotifier samples
+    [ ] buildbot / ci-targets
+[ ] libbitcoin -> libterracoin ?
+    [ ] shared lib ?
+[ ] unittests // make check
+[ ] sign / verifymessage checks
+[ ] installer (innosetup? nsis+unix/linux wrapper?)
+[ ] transifex account / local setup?
+[ ] doc
+[ ] cMake ?
+
+
+
