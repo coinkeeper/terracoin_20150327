@@ -11,7 +11,6 @@
 #include "util.h"
 
 #include <boost/assign/list_of.hpp>
-#include <stdio.h> // FIXME remove this (fopen)
 
 using namespace boost::assign;
 

@@ -17,6 +17,7 @@
     [ ] buildbot / ci-targets
 [ ] libbitcoin -> libterracoin ?
     [ ] shared lib ?
+[ ] images and various qt resources
 [ ] unittests // make check
 [ ] sign / verifymessage checks
 [ ] installer (innosetup? nsis+unix/linux wrapper?)

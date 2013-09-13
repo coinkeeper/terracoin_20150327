@@ -213,7 +213,7 @@ unsigned int static GetTestnetBasicNextWorkRequired(const CBlockIndex* pindexLas
     }
 
     // testnet uses 20x times less blocks than livenet:
-    const int64 retargetBlockCountInterval = 10; // retarget every 108 blocks (2160 for livechain)
+    const int64 retargetBlockCountInterval = 10; // retarget every 10 blocks (2160 for livechain)
     const int64 lookupBlockCount = 10; // past blocks to use for timing (2160 for livenet)
 
     const int64 retargetTimespan = 120 * retargetBlockCountInterval; // 2 minutes per block
