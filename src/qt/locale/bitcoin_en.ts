@@ -133,12 +133,7 @@ This product includes software developed by the OpenSSL Project for use in the O
 <context>
     <name>EditAddressDialog</name>
     <message>
-        <location filename="../forms/editaddressdialog.ui" line="+14"/>
-        <source>Edit Address</source>
-        <translation>Edit Address</translation>
-    </message>
-    <message>
-        <location line="+11"/>
+        <location filename="../forms/editaddressdialog.ui" line="+25"/>
         <source>&amp;Label</source>
         <translation>&amp;Label</translation>
     </message>
@@ -156,6 +151,11 @@ This product includes software developed by the OpenSSL Project for use in the O
         <location line="+10"/>
         <source>The address associated with this address book entry. This can only be modified for sending addresses.</source>
         <translation>The address associated with this address book entry. This can only be modified for sending addresses.</translation>
+    </message>
+    <message>
+        <location line="-38"/>
+        <source>Edit Address</source>
+        <translation>Edit Address</translation>
     </message>
 </context>
 <context>
@@ -249,12 +249,7 @@ This product includes software developed by the OpenSSL Project for use in the O
         <translation>Map port using &amp;UPnP</translation>
     </message>
     <message>
-        <location line="+7"/>
-        <source>Connect to the Bitcoin network through a SOCKS proxy (e.g. when connecting through Tor).</source>
-        <translation>Connect to the Bitcoin network through a SOCKS proxy (e.g. when connecting through Tor).</translation>
-    </message>
-    <message>
-        <location line="+3"/>
+        <location line="+10"/>
         <source>&amp;Connect through SOCKS proxy:</source>
         <translation>&amp;Connect through SOCKS proxy:</translation>
     </message>
@@ -362,6 +357,11 @@ This product includes software developed by the OpenSSL Project for use in the O
         <location line="+10"/>
         <source>&amp;Apply</source>
         <translation>&amp;Apply</translation>
+    </message>
+    <message>
+        <location line="-298"/>
+        <source>Connect to the Bitcoin network through a SOCKS proxy (e.g. when connecting through Tor).</source>
+        <translation>Connect to the Bitcoin network through a SOCKS proxy (e.g. when connecting through Tor).</translation>
     </message>
 </context>
 <context>
