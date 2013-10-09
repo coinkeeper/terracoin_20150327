@@ -82,7 +82,7 @@ unsigned int static GetEmaNextWorkRequired(const CBlockIndex* pindexLast, const 
 
     if (pblock->nTime > pindexLast->nTime + perBlockTargetTimespan*10) {
         if (TestNet()) {
-            printf("TESTNET: allowing min-difficulty mining.\n");
+            LogPrintf("TESTNET: allowing min-difficulty mining.\n");
             return nProofOfWorkLimit;
         } else if (pindexLast->nHeight < 175000) {
             // livenet ; will allow diff/2 unless exiting from apr 9th 2013 stalled state:
@@ -96,7 +96,7 @@ unsigned int static GetEmaNextWorkRequired(const CBlockIndex* pindexLast, const 
                 // half the last diff, sucks too, but with a big enough network,
                 // no block should take 20 minutes to be mined!
                 bnNew *= 2;
-                printf("RETARGET: artificially lowered diff ; hard time mining current block...\n");
+                LogPrintf("RETARGET: artificially lowered diff ; hard time mining current block...\n");
             }
 
             // super ugly way to never, ever return diff < 5254:
@@ -111,8 +111,8 @@ unsigned int static GetEmaNextWorkRequired(const CBlockIndex* pindexLast, const 
             if (bnNew > Params().ProofOfWorkLimit())
                 bnNew = Params().ProofOfWorkLimit();
 
-            printf("Before: %08x  %s\n", pindexLast->nBits, CBigNum().SetCompact(pindexLast->nBits).getuint256().ToString().c_str());
-            printf("After:  %08x  %s\n", bnNew.GetCompact(), bnNew.getuint256().ToString().c_str());
+            LogPrintf("Before: %08x  %s\n", pindexLast->nBits, CBigNum().SetCompact(pindexLast->nBits).getuint256().ToString().c_str());
+            LogPrintf("After:  %08x  %s\n", bnNew.GetCompact(), bnNew.getuint256().ToString().c_str());
 
             return (bnNew.GetCompact());
         }
@@ -140,7 +140,7 @@ unsigned int static GetEmaNextWorkRequired(const CBlockIndex* pindexLast, const 
             block_durations[2159 - i] = perBlockTargetTimespan;
         }
         if (TestNet()) {
-            printf("EMA: height=%d duration=%"PRI64d"\n", pindexFirst->nHeight, block_durations[2159 - i]);
+            LogPrintf("EMA: height=%d duration=%"PRI64d"\n", pindexFirst->nHeight, block_durations[2159 - i]);
         }
         pindexFirst = pindexFirst->pprev;
     }
@@ -154,14 +154,14 @@ unsigned int static GetEmaNextWorkRequired(const CBlockIndex* pindexLast, const 
             if (blk) {
                 // csv-like logging ; grep/sed 'EMA424242:' for easy plotting
                 // EMA<last_height>:height,diff,duration,ema
-                printf("EMA%d:%d,%f,%"PRI64d",%f\n", pindexLast->nHeight, pindexLast->nHeight - (2159 - i), GetDifficulty(blk), block_durations[i], accumulator);
+                LogPrintf("EMA%d:%d,%f,%"PRI64d",%f\n", pindexLast->nHeight, pindexLast->nHeight - (2159 - i), GetDifficulty(blk), block_durations[i], accumulator);
             }
         }
     }
 
     int64 nActualTimespan = accumulator;
     if (TestNet()) {
-        printf("GetEmaNextWorkRequired RETARGET nActualTimespan = %"PRI64d"  before bounds\n", nActualTimespan);
+        LogPrintf("GetEmaNextWorkRequired RETARGET nActualTimespan = %"PRI64d"  before bounds\n", nActualTimespan);
     }
 
     if (nActualTimespan < perBlockTargetTimespan / 2)
@@ -196,9 +196,9 @@ unsigned int static GetEmaNextWorkRequired(const CBlockIndex* pindexLast, const 
         bnNew = Params().ProofOfWorkLimit();
 
     if (TestNet()) {
-        printf("nTargetTimespan = %"PRI64d" nActualTimespan = %"PRI64d"\n", perBlockTargetTimespan, nActualTimespan);
-        printf("Before: %08x  %s\n", pindexLast->nBits, CBigNum().SetCompact(pindexLast->nBits).getuint256().ToString().c_str());
-        printf("After:  %08x  %s\n", bnNew.GetCompact(), bnNew.getuint256().ToString().c_str());
+        LogPrintf("nTargetTimespan = %"PRI64d" nActualTimespan = %"PRI64d"\n", perBlockTargetTimespan, nActualTimespan);
+        LogPrintf("Before: %08x  %s\n", pindexLast->nBits, CBigNum().SetCompact(pindexLast->nBits).getuint256().ToString().c_str());
+        LogPrintf("After:  %08x  %s\n", bnNew.GetCompact(), bnNew.getuint256().ToString().c_str());
     }
 
     return bnNew.GetCompact();
@@ -253,7 +253,7 @@ unsigned int static GetTestnetBasicNextWorkRequired(const CBlockIndex* pindexLas
     nActualTimespan = nActualTimespan / retargetVsInspectRatio;
 
     // limit target adjustments:
-    printf("RETARGET nActualTimespan = %"PRI64d"  before bounds\n", nActualTimespan);
+    LogPrintf("RETARGET nActualTimespan = %"PRI64d"  before bounds\n", nActualTimespan);
 
     if (pindexLast->nHeight > 1198) {
         // smaller adjustments limits:
@@ -282,9 +282,9 @@ unsigned int static GetTestnetBasicNextWorkRequired(const CBlockIndex* pindexLas
         bnNew = Params().ProofOfWorkLimit();
     }
 
-    printf("RETARGET height=%d nTargetTimespan = %"PRI64d" nActualTimespan = %"PRI64d"\n", pindexLast->nHeight, retargetTimespan, nActualTimespan);
-    printf("RETARGET Before: %08x  %s\n", pindexLast->nBits, CBigNum().SetCompact(pindexLast->nBits).getuint256().ToString().c_str());
-    printf("RETARGET  After: %08x  %s\n", bnNew.GetCompact(), bnNew.getuint256().ToString().c_str());
+    LogPrintf("RETARGET height=%d nTargetTimespan = %"PRI64d" nActualTimespan = %"PRI64d"\n", pindexLast->nHeight, retargetTimespan, nActualTimespan);
+    LogPrintf("RETARGET Before: %08x  %s\n", pindexLast->nBits, CBigNum().SetCompact(pindexLast->nBits).getuint256().ToString().c_str());
+    LogPrintf("RETARGET  After: %08x  %s\n", bnNew.GetCompact(), bnNew.getuint256().ToString().c_str());
 
     return (bnNew.GetCompact());
 }
@@ -301,10 +301,17 @@ unsigned int static GetBasicNextWorkRequired(const CBlockIndex* pindexLast, cons
         return (nProofOfWorkLimit);
     }
 
-    const int64 retargetBlockCountInterval = 2160; // retarget every 2160 blocks
-    const int64 lookupBlockCount = 2160; // past blocks to use for timing
-    const int64 retargetTimespan = 120 * retargetBlockCountInterval; // 2 minutes per block
-    const int64 retargetVsInspectRatio = lookupBlockCount / retargetBlockCountInterval; // currently 12
+    int64 retargetBlockCountInterval = 2160; // retarget every 2160 blocks
+    int64 lookupBlockCount = 2160; // past blocks count to use for timings
+
+    if (pindexLast->nHeight > 192237) {
+        // after block 192240, switch to 540 retarget-window with 1.25 limits
+        retargetBlockCountInterval = 540;
+        lookupBlockCount = 540;
+    }
+
+    int64 retargetTimespan = 120 * retargetBlockCountInterval; // 2 minutes per block
+    int64 retargetVsInspectRatio = lookupBlockCount / retargetBlockCountInterval; // currently 1
 
     // non-retargetting block: keep same diff:
     if ((pindexLast->nHeight+1) % retargetBlockCountInterval != 0 || (pindexLast->nHeight) < lookupBlockCount) {
@@ -322,12 +329,22 @@ unsigned int static GetBasicNextWorkRequired(const CBlockIndex* pindexLast, cons
     nActualTimespan = nActualTimespan / retargetVsInspectRatio;
 
     // limit target adjustments:
-    printf("RETARGET nActualTimespan = %"PRI64d"  before bounds\n", nActualTimespan);
-    if (nActualTimespan < retargetTimespan / 4) {
-        nActualTimespan = retargetTimespan / 4;
-    }
-    if (nActualTimespan > retargetTimespan * 4) {
-        nActualTimespan = retargetTimespan * 4;
+    LogPrintf("RETARGET nActualTimespan = %"PRI64d"  before bounds\n", nActualTimespan);
+    if (pindexLast->nHeight > 192237) {
+        // at and after block 192240, use 1.25 limits:
+        if (nActualTimespan < retargetTimespan / 1.25) {
+            nActualTimespan = retargetTimespan / 1.25;
+        }
+        if (nActualTimespan > retargetTimespan * 1.25) {
+            nActualTimespan = retargetTimespan * 1.25;
+        }
+    } else {
+        if (nActualTimespan < retargetTimespan / 4) {
+            nActualTimespan = retargetTimespan / 4;
+        }
+        if (nActualTimespan > retargetTimespan * 4) {
+            nActualTimespan = retargetTimespan * 4;
+        }
     }
 
     // new target:
@@ -363,9 +380,9 @@ unsigned int static GetBasicNextWorkRequired(const CBlockIndex* pindexLast, cons
         bnNew = Params().ProofOfWorkLimit();
     }
 
-    printf("RETARGET height=%d nTargetTimespan = %"PRI64d" nActualTimespan = %"PRI64d"\n", pindexLast->nHeight, retargetTimespan, nActualTimespan);
-    printf("RETARGET Before: %08x  %s\n", pindexLast->nBits, CBigNum().SetCompact(pindexLast->nBits).getuint256().ToString().c_str());
-    printf("RETARGET  After: %08x  %s\n", bnNew.GetCompact(), bnNew.getuint256().ToString().c_str());
+    LogPrintf("RETARGET height=%d nTargetTimespan = %"PRI64d" nActualTimespan = %"PRI64d"\n", pindexLast->nHeight, retargetTimespan, nActualTimespan);
+    LogPrintf("RETARGET Before: %08x  %s\n", pindexLast->nBits, CBigNum().SetCompact(pindexLast->nBits).getuint256().ToString().c_str());
+    LogPrintf("RETARGET  After: %08x  %s\n", bnNew.GetCompact(), bnNew.getuint256().ToString().c_str());
 
     return (bnNew.GetCompact());
 }
@@ -424,7 +441,7 @@ unsigned int GetTerracoinNextWorkRequired(const CBlockIndex* pindexLast, const C
     } else if (pindexLast->nHeight > 99988) {
         nActualTimespan = nActualTimespan / 24;
     }
-    printf("  nActualTimespan = %"PRI64d"  before bounds\n", nActualTimespan);
+    LogPrintf("  nActualTimespan = %"PRI64d"  before bounds\n", nActualTimespan);
     if (nActualTimespan < Params().TargetTimespan() / 4)
         nActualTimespan = Params().TargetTimespan() / 4;
     if (nActualTimespan > Params().TargetTimespan() * 4)
@@ -440,10 +457,10 @@ unsigned int GetTerracoinNextWorkRequired(const CBlockIndex* pindexLast, const C
         bnNew = Params().ProofOfWorkLimit();
 
     /// debug print
-    printf("GetNextWorkRequired RETARGET\n");
-    printf("nTargetTimespan = %"PRI64d"    nActualTimespan = %"PRI64d"\n", Params().TargetTimespan(), nActualTimespan);
-    printf("Before: %08x  %s\n", pindexLast->nBits, CBigNum().SetCompact(pindexLast->nBits).getuint256().ToString().c_str());
-    printf("After:  %08x  %s\n", bnNew.GetCompact(), bnNew.getuint256().ToString().c_str());
+    LogPrintf("GetNextWorkRequired RETARGET\n");
+    LogPrintf("nTargetTimespan = %"PRI64d"    nActualTimespan = %"PRI64d"\n", Params().TargetTimespan(), nActualTimespan);
+    LogPrintf("Before: %08x  %s\n", pindexLast->nBits, CBigNum().SetCompact(pindexLast->nBits).getuint256().ToString().c_str());
+    LogPrintf("After:  %08x  %s\n", bnNew.GetCompact(), bnNew.getuint256().ToString().c_str());
 
     return (bnNew.GetCompact());
 }
