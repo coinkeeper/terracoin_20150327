@@ -1387,9 +1387,9 @@ void seed_insecure_rand(bool fDeterministic)
 
 string FormatVersion(int nVersion)
 {
-    if (nVersion%100 == 0)
-        return strprintf("%d.%d.%d", nVersion/1000000, (nVersion/10000)%100, (nVersion/100)%100);
-    else
+    //if (nVersion%100 == 0)
+    //    return strprintf("%d.%d.%d", nVersion/1000000, (nVersion/10000)%100, (nVersion/100)%100);
+    //else
         return strprintf("%d.%d.%d.%d", nVersion/1000000, (nVersion/10000)%100, (nVersion/100)%100, nVersion%100);
 }
 
