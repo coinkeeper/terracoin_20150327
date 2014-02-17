@@ -22,7 +22,7 @@ ZLIB_SRC="https://downloads.sourceforge.net/project/libpng/zlib/1.2.6/zlib-1.2.6
 ZLIB_OUT_BASENAME="zlib-1.2.6.tar.gz"
 PNGLIB_SRC="https://downloads.sourceforge.net/project/libpng/libpng15/older-releases/1.5.9/libpng-1.5.9.tar.gz"
 PNGLIB_OUT_BASENAME="libpng-1.5.9.tar.gz"
-QT_SRC="http://releases.qt-project.org/qt4/source/qt-everywhere-opensource-src-4.8.3.tar.gz"
+QT_SRC="http://download.qt-project.org/official_releases/qt/4.8/4.8.5/qt-everywhere-opensource-src-4.8.5.tar.gz"
 QT_OUT_BASENAME="qt-everywhere-opensource-src-4.8.3.tar.gz"
 
 WGET_TIMEOUT=20
