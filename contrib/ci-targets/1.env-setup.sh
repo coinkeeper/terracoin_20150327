@@ -10,8 +10,8 @@ SOURCE_DESTDIR=/home/terracoin/dependencies
 ENABLE_DEPS=("OPENSSL BDB MINIUPNPC BOOST ZLIB PNGLIB QT")
 ENABLE_PLATFORMS=("mingw32 mingw64 linux64")
 
-OPENSSL_SRC="http://www.openssl.org/source/openssl-1.0.1c.tar.gz"
-OPENSSL_OUT_BASENAME="openssl-1.0.1c.tar.gz"
+OPENSSL_SRC="http://www.openssl.org/source/openssl-1.0.1g.tar.gz"
+OPENSSL_OUT_BASENAME="openssl-1.0.1g.tar.gz"
 BDB_SRC="http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz"
 BDB_OUT_BASENAME="db-4.8.30.NC.tar.gz"
 MINIUPNPC_SRC="http://miniupnp.tuxfamily.org/files/download.php?file=miniupnpc-1.6.tar.gz"
@@ -23,7 +23,7 @@ ZLIB_OUT_BASENAME="zlib-1.2.6.tar.gz"
 PNGLIB_SRC="https://downloads.sourceforge.net/project/libpng/libpng15/older-releases/1.5.9/libpng-1.5.9.tar.gz"
 PNGLIB_OUT_BASENAME="libpng-1.5.9.tar.gz"
 QT_SRC="http://download.qt-project.org/official_releases/qt/4.8/4.8.5/qt-everywhere-opensource-src-4.8.5.tar.gz"
-QT_OUT_BASENAME="qt-everywhere-opensource-src-4.8.3.tar.gz"
+QT_OUT_BASENAME="qt-everywhere-opensource-src-4.8.5.tar.gz"
 
 WGET_TIMEOUT=20
 WGET_TRIES=2

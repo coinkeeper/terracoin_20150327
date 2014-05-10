@@ -33,9 +33,9 @@ for CUR_PLATFORM in ${TARGET_PLATFORMS}; do
             # openssl
             # first check if we really want to rebuilt this (7 days old):
             need_rebuild=1
-            if [ -f ${platform_src_dir}/openssl-1.0.1c/libcrypto.a ]; then
+            if [ -f ${platform_src_dir}/openssl-1.0.1g/libcrypto.a ]; then
                 echo "libcrypto.a already built, checking its oldness..."
-                last_mtime=`stat -c "%Z" ${platform_src_dir}/openssl-1.0.1c/libcrypto.a`
+                last_mtime=`stat -c "%Z" ${platform_src_dir}/openssl-1.0.1g/libcrypto.a`
                 now_time=`date +"%s"`
                 let now_time=now_time-604800
                 if [ ${last_mtime} -gt ${now_time} ]; then
@@ -46,11 +46,11 @@ for CUR_PLATFORM in ${TARGET_PLATFORMS}; do
             fi
             if [ ${need_rebuild} -eq 1 ]; then
                 echo "Building openssl..."
-                cd ${platform_src_dir}/openssl-1.0.1c/ || exit_error "Failed to change to openssl-1.0.1c/ dir"
+                cd ${platform_src_dir}/openssl-1.0.1g/ || exit_error "Failed to change to openssl-1.0.1g/ dir"
                 CROSS_COMPILE="i586-mingw32msvc-" ./Configure mingw no-asm no-shared --prefix=/usr/i586-mingw32msvc || exit_error "configure failed"
                 PATH=$PATH:/usr/i586-mingw32msvc/bin make depend || exit_error "depend failed"
                 PATH=$PATH:/usr/i586-mingw32msvc/bin make || exit_error "make failed"
-                if [ ! -f ${platform_src_dir}/openssl-1.0.1c/libcrypto.a ]; then
+                if [ ! -f ${platform_src_dir}/openssl-1.0.1g/libcrypto.a ]; then
                     exit_error "UNABLE TO FIND generated libcrypto.a"
                 fi
             fi
@@ -151,13 +151,6 @@ for CUR_PLATFORM in ${TARGET_PLATFORMS}; do
                 do_release_build=0
             fi
 
-            # qt client:
-            echo "Building terracoin qt client..."
-            cd ${WORKSPACE} || exit_error "Failed to change to workspace dir"
-            make distclean
-            PATH=${platform_src_dir}/qt/bin:$PATH ${platform_src_dir}/qt/bin/qmake -spec unsupported/win32-g++-cross MINIUPNPC_LIB_PATH=${platform_src_dir}/miniupnpc-1.6 MINIUPNPC_INCLUDE_PATH=${platform_src_dir} BDB_LIB_PATH=${platform_src_dir}/db-4.8.30.NC/build_unix BDB_INCLUDE_PATH=${platform_src_dir}/db-4.8.30.NC/build_unix BOOST_LIB_PATH=${platform_src_dir}/boost_1_50_0/stage/lib BOOST_INCLUDE_PATH=${platform_src_dir}/boost_1_50_0 BOOST_LIB_SUFFIX=-mt BOOST_THREAD_LIB_SUFFIX=_win32-mt OPENSSL_LIB_PATH=${platform_src_dir}/openssl-1.0.1c OPENSSL_INCLUDE_PATH=${platform_src_dir}/openssl-1.0.1c/include QRENCODE_LIB_PATH=${platform_src_dir}/qrencode-3.2.0/.libs QRENCODE_INCLUDE_PATH=${platform_src_dir}/qrencode-3.2.0 USE_UPNP=1 USE_QRCODE=0 INCLUDEPATH=${platform_src_dir} DEFINES=BOOST_THREAD_USE_LIB QMAKE_LRELEASE=lrelease QMAKE_CXXFLAGS=-frandom-seed=terracoin QMAKE_LFLAGS=-frandom-seed=terracoin USE_BUILD_INFO=1 TERRACOIN_NEED_QT_PLUGINS=1 RELEASE=${do_release_build} || exit_error "qmake failed"
-            PATH=${platform_src_dir}/qt/bin:$PATH make || exit_error "Make failed"
-
             # terracoin headless daemon:
             echo "Building terracoin headless daemon..."
             cd ${WORKSPACE}/src/ || exit_error "Failed to change to terracoin src/"
@@ -170,6 +163,14 @@ for CUR_PLATFORM in ${TARGET_PLATFORMS}; do
             /usr/i586-mingw32msvc/bin/strip terracoind.exe || exit_error "strip failed"
             [ -f ${WORKSPACE}/src/terracoind.exe ] || exit_error "UNABLE to find generated terracoind.exe"
             echo "terracoind compile success."
+
+
+            # qt client:
+            echo "Building terracoin qt client..."
+            cd ${WORKSPACE} || exit_error "Failed to change to workspace dir"
+            make distclean
+            PATH=${platform_src_dir}/qt/bin:$PATH ${platform_src_dir}/qt/bin/qmake -spec unsupported/win32-g++-cross MINIUPNPC_LIB_PATH=${platform_src_dir}/miniupnpc-1.6 MINIUPNPC_INCLUDE_PATH=${platform_src_dir} BDB_LIB_PATH=${platform_src_dir}/db-4.8.30.NC/build_unix BDB_INCLUDE_PATH=${platform_src_dir}/db-4.8.30.NC/build_unix BOOST_LIB_PATH=${platform_src_dir}/boost_1_50_0/stage/lib BOOST_INCLUDE_PATH=${platform_src_dir}/boost_1_50_0 BOOST_LIB_SUFFIX=-mt BOOST_THREAD_LIB_SUFFIX=_win32-mt OPENSSL_LIB_PATH=${platform_src_dir}/openssl-1.0.1g OPENSSL_INCLUDE_PATH=${platform_src_dir}/openssl-1.0.1g/include QRENCODE_LIB_PATH=${platform_src_dir}/qrencode-3.2.0/.libs QRENCODE_INCLUDE_PATH=${platform_src_dir}/qrencode-3.2.0 USE_UPNP=1 USE_QRCODE=0 INCLUDEPATH=${platform_src_dir} DEFINES=BOOST_THREAD_USE_LIB QMAKE_LRELEASE=lrelease QMAKE_CXXFLAGS=-frandom-seed=terracoin QMAKE_LFLAGS=-frandom-seed=terracoin USE_BUILD_INFO=1 TERRACOIN_NEED_QT_PLUGINS=1 RELEASE=${do_release_build} || exit_error "qmake failed"
+            PATH=${platform_src_dir}/qt/bin:$PATH make || exit_error "Make failed"
 
             # copy built files if built branch is 'master':
             #if [ "${GIT_BRANCH}" == "master" ]; then
