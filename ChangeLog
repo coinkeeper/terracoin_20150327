@@ -1,3 +1,14 @@
+terracoin-0.8.0.4 :
+    - win32 prebuilt binaries now linked against openssl 1.0.1g
+
+terracoin-0.8.0.3 :
+     minor: checkpoint added.
+     - checkpoint added at height=318300
+     - quick build instructions added for 'dev-0.1.3' branch, which is
+	 currently merged up to master branch. Should be the last build
+	 coming from this branch, will switch to 'dev' branch soon,
+	 including latest bitcoin updates.
+
 terracoin-0.8.0.2 (build 54) :
       minor: checkpoint added, protecting past transactions.
 
