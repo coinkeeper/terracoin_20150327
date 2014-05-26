@@ -52,3 +52,12 @@ To compile and run them:
   qmake TERRACOIN_QT_TEST=1 -o Makefile.test terracoin-qt.pro
   make -f Makefile.test
   ./terracoin-qt_test
+
+
+# Donations #
+
+We now accept donations towards development and hosting costs :
+
+TRC: 1LpnJb98gXwdzriYXnMe2qryW5915Ysg9a
+BTC: 1JaqW8LyfShWaGRnDptF2rBkyMwYAW1aR2
+
