@@ -59,5 +59,6 @@ To compile and run them:
 We now accept donations towards development and hosting costs :
 
 TRC: 1LpnJb98gXwdzriYXnMe2qryW5915Ysg9a
+
 BTC: 1JaqW8LyfShWaGRnDptF2rBkyMwYAW1aR2
 
