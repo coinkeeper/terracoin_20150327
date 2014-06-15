@@ -1,3 +1,6 @@
+terracoin-0.8.0.5-rc :
+    - minor: 346805 checkpoint
+
 terracoin-0.8.0.4 :
     - win32 prebuilt binaries now linked against openssl 1.0.1g
 

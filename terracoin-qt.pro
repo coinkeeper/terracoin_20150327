@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = terracoin-qt
 macx:TARGET = "Terracoin-Qt"
-VERSION = 0.8.0.4
+VERSION = 0.8.0.5
 INCLUDEPATH += src src/json src/threadpool/include src/qt
 QT += network
 DEFINES += QT_GUI BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE BOOST_TT_HAS_OPERATOR_HPP_INCLUDED
