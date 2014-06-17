@@ -31,9 +31,9 @@ or more developpers works on the same task.
 
 # Build instructions #
 
-  ./autogen.sh
-  ./configure
-  make -j 4
+    ./autogen.sh
+    ./configure
+    make -j 4
 
 
 # Donations #
