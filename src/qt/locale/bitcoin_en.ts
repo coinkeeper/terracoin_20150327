@@ -1603,8 +1603,8 @@ Address: %4
     </message>
     <message>
         <location line="-388"/>
-        <source>Cannot start bitcoin: click-to-pay handler</source>
-        <translation>Cannot start terracoin: click-to-pay handler</translation>
+        <source>Cannot start terracoin: click-to-pay handler</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+58"/>

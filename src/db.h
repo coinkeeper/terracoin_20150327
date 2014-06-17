@@ -15,7 +15,7 @@
 #include <vector>
 
 #include <boost/filesystem/path.hpp>
-#include <db4.8/db_cxx.h>
+#include <db_cxx.h>
 
 class CAddrMan;
 struct CBlockLocator;

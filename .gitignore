@@ -3,10 +3,10 @@
 *.exe
 src/*.exe
 src/*/*.exe
-src/bitcoin
+src/terracoin
 src/terracoind
-src/test/test_bitcoin
-src/qt/test/test_bitcoin-qt
+src/test/test_terracoin
+src/qt/test/test_terracoin-qt
 
 Makefile.in
 aclocal.m4
@@ -48,7 +48,7 @@ src/qt/res/.dirstamp
 *.orig
 *.o
 *.patch
-.bitcoin
+.terracoin
 *.a
 *.pb.cc
 *.pb.h
@@ -68,7 +68,7 @@ Terracoin-Qt.app
 
 # Unit-tests
 Makefile.test
-bitcoin-qt_test
+terracoin-qt_test
 
 # Resources cpp
 qrc_*.cpp
@@ -83,7 +83,7 @@ build
 #lcov
 *.gcno
 /*.info
-test_bitcoin.coverage/
+test_terracoin.coverage/
 total.coverage/
 coverage_percent.txt
 
@@ -91,7 +91,10 @@ coverage_percent.txt
 linux-coverage-build
 linux-build
 win32-build
-qa/pull-tester/run-bitcoind-for-test.sh
+qa/pull-tester/run-terracoind-for-test.sh
 qa/pull-tester/build-tests.sh
 
 !src/leveldb-*/Makefile
+src/compat/.deps
+src/terracoin-cli
+src/qt/test/test_bitcoin-qt
