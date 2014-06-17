@@ -1,12 +1,17 @@
+// Copyright (c) 2011-2013 The Bitcoin developers
+// Distributed under the MIT/X11 software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef PAYMENTREQUESTPLUS_H
 #define PAYMENTREQUESTPLUS_H
+
+#include "paymentrequest.pb.h"
+
+#include "base58.h"
 
 #include <QByteArray>
 #include <QList>
 #include <QString>
-
-#include "base58.h"
-#include "paymentrequest.pb.h"
 
 //
 // Wraps dumb protocol buffer paymentRequest
@@ -19,7 +24,7 @@ public:
     PaymentRequestPlus() { }
 
     bool parse(const QByteArray& data);
-    bool SerializeToString(string* output) const;
+    bool SerializeToString(std::string* output) const;
 
     bool IsInitialized() const;
     QString getPKIType() const;

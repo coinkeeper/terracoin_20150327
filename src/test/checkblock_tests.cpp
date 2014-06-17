@@ -1,22 +1,25 @@
+// Copyright (c) 2013-2014 The Bitcoin Core developers
+// Distributed under the MIT/X11 software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 //
 // Unit tests for block.CheckBlock()
 //
-#include <algorithm>
 
-#include <boost/assign/list_of.hpp> // for 'map_list_of()'
-#include <boost/date_time/posix_time/posix_time_types.hpp>
-#include <boost/test/unit_test.hpp>
-#include <boost/foreach.hpp>
+
 
 #include "main.h"
-#include "wallet.h"
-#include "net.h"
-#include "util.h"
+
+#include <cstdio>
+
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
+#include <boost/test/unit_test.hpp>
+
 
 BOOST_AUTO_TEST_SUITE(CheckBlock_tests)
 
-bool
-read_block(const std::string& filename, CBlock& block)
+bool read_block(const std::string& filename, CBlock& block)
 {
     namespace fs = boost::filesystem;
     fs::path testFile = fs::current_path() / "data" / filename;

@@ -1,14 +1,13 @@
-// Copyright (c) 2009-2012 The Bitcoin developers
+// Copyright (c) 2009-2013 The Bitcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <openssl/bn.h>
-#include <openssl/ecdsa.h>
-#include <openssl/rand.h>
-#include <openssl/obj_mac.h>
-
 #include "key.h"
 
+#include <openssl/bn.h>
+#include <openssl/ecdsa.h>
+#include <openssl/obj_mac.h>
+#include <openssl/rand.h>
 
 // anonymous namespace with local implementation code (OpenSSL interaction)
 namespace {
@@ -149,10 +148,13 @@ public:
     }
 
     void SetSecretBytes(const unsigned char vch[32]) {
+        bool ret;
         BIGNUM bn;
         BN_init(&bn);
-        assert(BN_bin2bn(vch, 32, &bn));
-        assert(EC_KEY_regenerate_key(pkey, &bn));
+        ret = BN_bin2bn(vch, 32, &bn);
+        assert(ret);
+        ret = EC_KEY_regenerate_key(pkey, &bn);
+        assert(ret);
         BN_clear_free(&bn);
     }
 
@@ -166,9 +168,12 @@ public:
         assert(nSize == nSize2);
     }
 
-    bool SetPrivKey(const CPrivKey &privkey) {
+    bool SetPrivKey(const CPrivKey &privkey, bool fSkipCheck=false) {
         const unsigned char* pbegin = &privkey[0];
         if (d2i_ECPrivateKey(&pkey, &pbegin, privkey.size())) {
+            if(fSkipCheck)
+                return true;
+            
             // d2i_ECPrivateKey returns true if parsing succeeds.
             // This doesn't necessarily mean the key is valid.
             if (EC_KEY_check_key(pkey))
@@ -199,17 +204,19 @@ public:
         ECDSA_SIG *sig = ECDSA_do_sign((unsigned char*)&hash, sizeof(hash), pkey);
         if (sig == NULL)
             return false;
-        if (BN_is_odd(sig->s)) {
-            // enforce even S values, by negating the value (modulo the order) if odd
-            BN_CTX *ctx = BN_CTX_new();
-            BN_CTX_start(ctx);
-            const EC_GROUP *group = EC_KEY_get0_group(pkey);
-            BIGNUM *order = BN_CTX_get(ctx);
-            EC_GROUP_get_order(group, order, ctx);
+        BN_CTX *ctx = BN_CTX_new();
+        BN_CTX_start(ctx);
+        const EC_GROUP *group = EC_KEY_get0_group(pkey);
+        BIGNUM *order = BN_CTX_get(ctx);
+        BIGNUM *halforder = BN_CTX_get(ctx);
+        EC_GROUP_get_order(group, order, ctx);
+        BN_rshift1(halforder, order);
+        if (BN_cmp(sig->s, halforder) > 0) {
+            // enforce low S values, by negating the value (modulo the order) if above order/2.
             BN_sub(sig->s, order, sig->s);
-            BN_CTX_end(ctx);
-            BN_CTX_free(ctx);
         }
+        BN_CTX_end(ctx);
+        BN_CTX_free(ctx);
         unsigned int nSize = ECDSA_size(pkey);
         vchSig.resize(nSize); // Make sure it is big enough
         unsigned char *pos = &vchSig[0];
@@ -325,30 +332,60 @@ public:
     }
 };
 
+int CompareBigEndian(const unsigned char *c1, size_t c1len, const unsigned char *c2, size_t c2len) {
+    while (c1len > c2len) {
+        if (*c1)
+            return 1;
+        c1++;
+        c1len--;
+    }
+    while (c2len > c1len) {
+        if (*c2)
+            return -1;
+        c2++;
+        c2len--;
+    }
+    while (c1len > 0) {
+        if (*c1 > *c2)
+            return 1;
+        if (*c2 > *c1)
+            return -1;
+        c1++;
+        c2++;
+        c1len--;
+    }
+    return 0;
+}
+
+// Order of secp256k1's generator minus 1.
+const unsigned char vchMaxModOrder[32] = {
+    0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
+    0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFE,
+    0xBA,0xAE,0xDC,0xE6,0xAF,0x48,0xA0,0x3B,
+    0xBF,0xD2,0x5E,0x8C,0xD0,0x36,0x41,0x40
+};
+
+// Half of the order of secp256k1's generator minus 1.
+const unsigned char vchMaxModHalfOrder[32] = {
+    0x7F,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
+    0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
+    0x5D,0x57,0x6E,0x73,0x57,0xA4,0x50,0x1D,
+    0xDF,0xE9,0x2F,0x46,0x68,0x1B,0x20,0xA0
+};
+
+const unsigned char vchZero[0] = {};
+
+
 }; // end of anonymous namespace
 
 bool CKey::Check(const unsigned char *vch) {
-    // Do not convert to OpenSSL's data structures for range-checking keys,
-    // it's easy enough to do directly.
-    static const unsigned char vchMax[32] = {
-        0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-        0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFE,
-        0xBA,0xAE,0xDC,0xE6,0xAF,0x48,0xA0,0x3B,
-        0xBF,0xD2,0x5E,0x8C,0xD0,0x36,0x41,0x40
-    };
-    bool fIsZero = true;
-    for (int i=0; i<32 && fIsZero; i++)
-        if (vch[i] != 0)
-            fIsZero = false;
-    if (fIsZero)
-        return false;
-    for (int i=0; i<32; i++) {
-        if (vch[i] < vchMax[i])
-            return true;
-        if (vch[i] > vchMax[i])
-            return false;
-    }
-    return true;
+    return CompareBigEndian(vch, 32, vchZero, 0) > 0 &&
+           CompareBigEndian(vch, 32, vchMaxModOrder, 32) <= 0;
+}
+
+bool CKey::CheckSignatureElement(const unsigned char *vch, int len, bool half) {
+    return CompareBigEndian(vch, len, vchZero, 0) > 0 &&
+           CompareBigEndian(vch, len, half ? vchMaxModHalfOrder : vchMaxModOrder, 32) <= 0;
 }
 
 void CKey::MakeNewKey(bool fCompressedIn) {
@@ -409,6 +446,24 @@ bool CKey::SignCompact(const uint256 &hash, std::vector<unsigned char>& vchSig) 
     return true;
 }
 
+bool CKey::Load(CPrivKey &privkey, CPubKey &vchPubKey, bool fSkipCheck=false) {
+    CECKey key;
+    if (!key.SetPrivKey(privkey, fSkipCheck))
+        return false;
+    
+    key.GetSecretBytes(vch);
+    fCompressed = vchPubKey.IsCompressed();
+    fValid = true;
+    
+    if (fSkipCheck)
+        return true;
+    
+    if (GetPubKey() != vchPubKey)
+        return false;
+    
+    return true;
+}
+
 bool CPubKey::Verify(const uint256 &hash, const std::vector<unsigned char>& vchSig) const {
     if (!IsValid())
         return false;
@@ -427,21 +482,6 @@ bool CPubKey::RecoverCompact(const uint256 &hash, const std::vector<unsigned cha
     if (!key.Recover(hash, &vchSig[1], (vchSig[0] - 27) & ~4))
         return false;
     key.GetPubKey(*this, (vchSig[0] - 27) & 4);
-    return true;
-}
-
-bool CPubKey::VerifyCompact(const uint256 &hash, const std::vector<unsigned char>& vchSig) const {
-    if (!IsValid())
-        return false;
-    if (vchSig.size() != 65)
-        return false;
-    CECKey key;
-    if (!key.Recover(hash, &vchSig[1], (vchSig[0] - 27) & ~4))
-        return false;
-    CPubKey pubkeyRec;
-    key.GetPubKey(pubkeyRec, IsCompressed());
-    if (*this != pubkeyRec)
-        return false;
     return true;
 }
 
@@ -591,3 +631,15 @@ bool CExtPubKey::Derive(CExtPubKey &out, unsigned int nChild) const {
     out.nChild = nChild;
     return pubkey.Derive(out.pubkey, out.vchChainCode, nChild, vchChainCode);
 }
+
+bool ECC_InitSanityCheck() {
+    EC_KEY *pkey = EC_KEY_new_by_curve_name(NID_secp256k1);
+    if(pkey == NULL)
+        return false;
+    EC_KEY_free(pkey);
+
+    // TODO Is there more EC functionality that could be missing?
+    return true;
+}
+
+

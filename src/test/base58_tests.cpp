@@ -1,13 +1,24 @@
-#include <boost/test/unit_test.hpp>
-#include "json/json_spirit_reader_template.h"
-#include "json/json_spirit_writer_template.h"
-#include "json/json_spirit_utils.h"
+// Copyright (c) 2011-2014 The Bitcoin Core developers
+// Distributed under the MIT/X11 software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#include "base58.h"
+
 #include "data/base58_encode_decode.json.h"
 #include "data/base58_keys_invalid.json.h"
 #include "data/base58_keys_valid.json.h"
 
-#include "base58.h"
+#include "key.h"
+#include "script.h"
+#include "uint256.h"
 #include "util.h"
+
+#include <boost/foreach.hpp>
+#include <boost/test/unit_test.hpp>
+#include "json/json_spirit_reader_template.h"
+#include "json/json_spirit_utils.h"
+#include "json/json_spirit_writer_template.h"
+
 using namespace json_spirit;
 extern Array read_json(const std::string& jsondata);
 
@@ -56,6 +67,12 @@ BOOST_AUTO_TEST_CASE(base58_DecodeBase58)
     }
 
     BOOST_CHECK(!DecodeBase58("invalid", result));
+
+    // check that DecodeBase58 skips whitespace, but still fails with unexpected non-whitespace at the end.
+    BOOST_CHECK(!DecodeBase58(" \t\n\v\f\r skip \r\f\v\n\t a", result));
+    BOOST_CHECK( DecodeBase58(" \t\n\v\f\r skip \r\f\v\n\t ", result));
+    std::vector<unsigned char> expected = ParseHex("971a55");
+    BOOST_CHECK_EQUAL_COLLECTIONS(result.begin(), result.end(), expected.begin(), expected.end());
 }
 
 // Visitor to check address type
@@ -216,7 +233,7 @@ BOOST_AUTO_TEST_CASE(base58_keys_valid_gen)
                 continue;
             }
             CBitcoinAddress addrOut;
-            BOOST_CHECK_MESSAGE(boost::apply_visitor(CBitcoinAddressVisitor(&addrOut), dest), "encode dest: " + strTest);
+            BOOST_CHECK_MESSAGE(addrOut.Set(dest), "encode dest: " + strTest);
             BOOST_CHECK_MESSAGE(addrOut.ToString() == exp_base58string, "mismatch: " + strTest);
         }
     }
@@ -224,7 +241,7 @@ BOOST_AUTO_TEST_CASE(base58_keys_valid_gen)
     // Visiting a CNoDestination must fail
     CBitcoinAddress dummyAddr;
     CTxDestination nodest = CNoDestination();
-    BOOST_CHECK(!boost::apply_visitor(CBitcoinAddressVisitor(&dummyAddr), nodest));
+    BOOST_CHECK(!dummyAddr.Set(nodest));
 
     SelectParams(CChainParams::MAIN);
 }

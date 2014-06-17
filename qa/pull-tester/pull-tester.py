@@ -1,4 +1,8 @@
 #!/usr/bin/python
+# Copyright (c) 2013 The Bitcoin Core developers
+# Distributed under the MIT/X11 software license, see the accompanying
+# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+#
 import json
 from urllib import urlopen
 import requests
@@ -38,7 +42,7 @@ def checkout_pull(clone_url, commit, out):
     # Init
     build_dir=os.environ["BUILD_DIR"]
     run("umount ${CHROOT_COPY}/proc", fail_hard=False)
-    run("rsync --delete -apv ${CHROOT_MASTER} ${CHROOT_COPY}")
+    run("rsync --delete -apv ${CHROOT_MASTER}/ ${CHROOT_COPY}")
     run("rm -rf ${CHROOT_COPY}${SCRIPTS_DIR}")
     run("cp -a ${SCRIPTS_DIR} ${CHROOT_COPY}${SCRIPTS_DIR}")
     # Merge onto upstream/master
@@ -67,7 +71,12 @@ Contact BlueMatt on freenode if something looks broken."""
                                   auth=(os.environ['GITHUB_USER'], os.environ["GITHUB_AUTH_TOKEN"]))
 
     if success == True:
-        post_data = { "body" : "Automatic sanity-testing: PASSED, see " + linkUrl + " for binaries and test log." + common_message}
+        if needTests:
+            message = "Automatic sanity-testing: PLEASE ADD TEST-CASES, though technically passed. See " + linkUrl + " for binaries and test log."
+        else:
+            message = "Automatic sanity-testing: PASSED, see " + linkUrl + " for binaries and test log."
+
+        post_data = { "body" : message + common_message}
     elif inMerge:
         post_data = { "body" : "Automatic sanity-testing: FAILED MERGE, see " + linkUrl + " for test log." + """
 
@@ -76,7 +85,7 @@ This pull does not merge cleanly onto current master""" + common_message}
         post_data = { "body" : "Automatic sanity-testing: FAILED BUILD/TEST, see " + linkUrl + " for binaries and test log." + """
 
 This could happen for one of several reasons:
-1. It chanages paths in makefile.linux-mingw or otherwise changes build scripts in a way that made them incompatible with the automated testing scripts (please tweak those patches in qa/pull-tester)
+1. It chanages changes build scripts in a way that made them incompatible with the automated testing scripts (please tweak those patches in qa/pull-tester)
 2. It adds/modifies tests which test network rules (thanks for doing that), which conflicts with a patch applied at test time
 3. It does not build on either Linux i386 or Win32 (via MinGW cross compile)
 4. The test suite fails on either Linux i386 or Win32
@@ -108,17 +117,18 @@ def testpull(number, comment_url, clone_url, commit):
         open(os.environ["TESTED_DB"], "a").write(commit + "\n")
         return
 
-    # New: pull-tester.sh script(s) are in the tree:
+    run("rm -rf ${CHROOT_COPY}/${OUT_DIR}", fail_hard=False);
+    run("mkdir -p ${CHROOT_COPY}/${OUT_DIR}", fail_hard=False);
+    run("chown -R ${BUILD_USER}:${BUILD_GROUP} ${CHROOT_COPY}/${OUT_DIR}", fail_hard=False)
+
     script = os.environ["BUILD_PATH"]+"/qa/pull-tester/pull-tester.sh"
-    script += " ${BUILD_PATH} ${MINGW_DEPS_DIR} ${SCRIPTS_DIR}/BitcoindComparisonTool.jar 1"
+    script += " ${BUILD_PATH} ${MINGW_DEPS_DIR} ${SCRIPTS_DIR}/BitcoindComparisonTool_jar/BitcoindComparisonTool.jar 0 6 ${OUT_DIR}"
     returncode = run("chroot ${CHROOT_COPY} sudo -u ${BUILD_USER} -H timeout ${TEST_TIMEOUT} "+script,
                      fail_hard=False, stdout=out, stderr=out)
 
+    run("mv ${CHROOT_COPY}/${OUT_DIR} " + dir)
     run("mv ${BUILD_DIR} " + dir)
-    # TODO: FIXME 
-    # Idea: have run-script save interesting output...
-    #    run("cp /mnt/chroot-tmp/home/ubuntu/.bitcoin/regtest/debug.log " + dir)
-    #    os.system("chmod +r " + dir + "/debug.log")
+
     if returncode == 42:
         print("Successfully tested pull (needs tests) - sending comment to: " + comment_url)
         commentOn(comment_url, True, False, True, resultsurl)
@@ -147,6 +157,7 @@ environ_default("MINGW_DEPS_DIR", "/mnt/w32deps")
 environ_default("SCRIPTS_DIR", "/mnt/test-scripts")
 environ_default("CHROOT_COPY", "/mnt/chroot-tmp")
 environ_default("CHROOT_MASTER", "/mnt/chroot")
+environ_default("OUT_DIR", "/mnt/out")
 environ_default("BUILD_PATH", "/mnt/bitcoin")
 os.environ["BUILD_DIR"] = os.environ["CHROOT_COPY"] + os.environ["BUILD_PATH"]
 environ_default("RESULTS_DIR", "/mnt/www/pull-tester")

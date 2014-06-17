@@ -2,15 +2,17 @@
 // Copyright (c) 2009-2013 The Bitcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef BITCOIN_KEY_H
 #define BITCOIN_KEY_H
 
-#include <vector>
-
 #include "allocators.h"
+#include "hash.h"
 #include "serialize.h"
 #include "uint256.h"
-#include "hash.h"
+
+#include <stdexcept>
+#include <vector>
 
 // secp256k1:
 // const unsigned int PRIVATE_KEY_SIZE = 279;
@@ -135,7 +137,9 @@ public:
         return Hash(vch, vch+size());
     }
 
-    // just check syntactic correctness.
+    // Check syntactic correctness.
+    //
+    // Note that this is consensus critical as CheckSig() calls it!
     bool IsValid() const {
         return size() > 0;
     }
@@ -151,10 +155,6 @@ public:
     // Verify a DER signature (~72 bytes).
     // If this public key is not fully valid, the return value will be false.
     bool Verify(const uint256 &hash, const std::vector<unsigned char>& vchSig) const;
-
-    // Verify a compact signature (~65 bytes).
-    // See CKey::SignCompact.
-    bool VerifyCompact(const uint256 &hash, const std::vector<unsigned char>& vchSig) const;
 
     // Recover a public key from a compact signature.
     bool RecoverCompact(const uint256 &hash, const std::vector<unsigned char>& vchSig);
@@ -205,7 +205,8 @@ public:
     }
 
     friend bool operator==(const CKey &a, const CKey &b) {
-        return a.fCompressed == b.fCompressed && memcmp(&a.vch[0], &b.vch[0], 32);
+        return a.fCompressed == b.fCompressed && a.size() == b.size() &&
+               memcmp(&a.vch[0], &b.vch[0], a.size()) == 0;
     }
 
     // Initialize using begin and end iterators to byte data.
@@ -261,6 +262,12 @@ public:
 
     // Derive BIP32 child key.
     bool Derive(CKey& keyChild, unsigned char ccChild[32], unsigned int nChild, const unsigned char cc[32]) const;
+
+    // Load private key and check that public key matches.
+    bool Load(CPrivKey &privkey, CPubKey &vchPubKey, bool fSkipCheck);
+
+    // Check whether an element of a signature (r or s) is valid.
+    static bool CheckSignatureElement(const unsigned char *vch, int len, bool half);
 };
 
 struct CExtPubKey {
@@ -298,5 +305,8 @@ struct CExtKey {
     CExtPubKey Neuter() const;
     void SetMaster(const unsigned char *seed, unsigned int nSeedLen);
 };
+
+/** Check that required EC support is available at runtime */
+bool ECC_InitSanityCheck(void);
 
 #endif

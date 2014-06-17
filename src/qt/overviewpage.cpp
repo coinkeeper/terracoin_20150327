@@ -1,14 +1,18 @@
+// Copyright (c) 2011-2013 The Bitcoin developers
+// Distributed under the MIT/X11 software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #include "overviewpage.h"
 #include "ui_overviewpage.h"
 
-#include "clientmodel.h"
-#include "walletmodel.h"
 #include "bitcoinunits.h"
-#include "optionsmodel.h"
-#include "transactiontablemodel.h"
-#include "transactionfilterproxy.h"
-#include "guiutil.h"
+#include "clientmodel.h"
 #include "guiconstants.h"
+#include "guiutil.h"
+#include "optionsmodel.h"
+#include "transactionfilterproxy.h"
+#include "transactiontablemodel.h"
+#include "walletmodel.h"
 
 #include <QAbstractItemDelegate>
 #include <QPainter>
@@ -20,7 +24,7 @@ class TxViewDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
 public:
-    TxViewDelegate(): QAbstractItemDelegate(), unit(BitcoinUnits::BTC)
+    TxViewDelegate(): QAbstractItemDelegate(), unit(BitcoinUnits::TRC)
     {
 
     }
@@ -171,6 +175,7 @@ void OverviewPage::setWalletModel(WalletModel *model)
         filter->setLimit(NUM_ITEMS);
         filter->setDynamicSortFilter(true);
         filter->setSortRole(Qt::EditRole);
+        filter->setShowInactive(false);
         filter->sort(TransactionTableModel::Status, Qt::DescendingOrder);
 
         ui->listTransactions->setModel(filter);
@@ -183,7 +188,7 @@ void OverviewPage::setWalletModel(WalletModel *model)
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
     }
 
-    // update the display unit, to not use the default ("BTC")
+    // update the display unit, to not use the default ("TRC")
     updateDisplayUnit();
 }
 

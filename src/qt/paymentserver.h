@@ -1,7 +1,9 @@
+// Copyright (c) 2011-2014 The Bitcoin developers
+// Distributed under the MIT/X11 software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef PAYMENTSERVER_H
 #define PAYMENTSERVER_H
-
-//
 // This class handles payment requests from clicking on
 // bitcoin: URIs
 //
@@ -28,13 +30,13 @@
 // and, if a server is running in another process,
 // sends them to the server.
 //
-#include <QObject>
-#include <QString>
 
 #include "paymentrequestplus.h"
 #include "walletmodel.h"
 
-class CWallet;
+#include <QObject>
+#include <QString>
+
 class OptionsModel;
 
 QT_BEGIN_NAMESPACE
@@ -47,17 +49,23 @@ class QSslError;
 class QUrl;
 QT_END_NAMESPACE
 
+class CWallet;
+
 class PaymentServer : public QObject
 {
     Q_OBJECT
 
 public:
+    // Parse URIs on command line
+    // Returns false on error
+    static bool ipcParseCommandLine(int argc, char *argv[]);
+
     // Returns true if there were URIs on the command line
     // which were successfully sent to an already-running
     // process.
     // Note: if a payment request is given, SelectParams(MAIN/TESTNET)
     // will be called so we startup in the right mode.
-    static bool ipcSendCommandLine(int argc, char *argv[]);
+    static bool ipcSendCommandLine();
 
     // parent should be QApplication object
     PaymentServer(QObject* parent, bool startLocalServer = true);
@@ -73,13 +81,6 @@ public:
     // Return certificate store
     static X509_STORE* getCertStore() { return certStore; }
 
-    // Setup networking
-    void initNetManager();
-
-    // Constructor registers this on the parent QApplication to
-    // receive QEvent::FileOpen events
-    bool eventFilter(QObject *object, QEvent *event);
-
     // OptionsModel is used for getting proxy settings and display unit
     void setOptionsModel(OptionsModel *optionsModel);
 
@@ -88,10 +89,10 @@ signals:
     void receivedPaymentRequest(SendCoinsRecipient);
 
     // Fired when a valid PaymentACK is received
-    void receivedPaymentACK(QString);
+    void receivedPaymentACK(const QString &paymentACKMsg);
 
-    // Fired when an error should be reported to the user
-    void reportError(QString, QString, unsigned int);
+    // Fired when a message should be reported to the user
+    void message(const QString &title, const QString &message, unsigned int style);
 
 public slots:
     // Signal this when the main window's UI is ready
@@ -101,16 +102,27 @@ public slots:
     // Submit Payment message to a merchant, get back PaymentACK:
     void fetchPaymentACK(CWallet* wallet, SendCoinsRecipient recipient, QByteArray transaction);
 
+    // Handle an incoming URI, URI with local file scheme or file
+    void handleURIOrFile(const QString& s);
+
 private slots:
     void handleURIConnection();
     void netRequestFinished(QNetworkReply*);
     void reportSslErrors(QNetworkReply*, const QList<QSslError> &);
+    void handlePaymentACK(const QString& paymentACKMsg);
+
+protected:
+    // Constructor registers this on the parent QApplication to
+    // receive QEvent::FileOpen and QEvent:Drop events
+    bool eventFilter(QObject *object, QEvent *event);
 
 private:
     static bool readPaymentRequest(const QString& filename, PaymentRequestPlus& request);
-    bool processPaymentRequest(PaymentRequestPlus& request, QList<SendCoinsRecipient>& recipients);
-    void handleURIOrFile(const QString& s);
+    bool processPaymentRequest(PaymentRequestPlus& request, SendCoinsRecipient& recipient);
     void fetchRequest(const QUrl& url);
+
+    // Setup networking
+    void initNetManager();
 
     bool saveURIs;                      // true during startup
     QLocalServer* uriServer;
