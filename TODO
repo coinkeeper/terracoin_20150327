@@ -1,3 +1,9 @@
+-- missing : --
+
+[ ] images and various qt resources
+[ ] trxnotifier
+
+
 [X] genesis blocks
 [X] checkpoints
 [X] magic bytes
@@ -9,16 +15,13 @@
     [X] bootstrap (1100)
 [X] alert key
     [ ] tests / validations
-[ ] trxnotifier
 [ ] contrib
     [X] makeseed
     [/] trxnotifier samples
     [ ] buildbot / ci-targets
-[ ] images and various qt resources
 [ ] unittests // make check
 [ ] sign / verifymessage checks
 [ ] installer (innosetup? nsis+unix/linux wrapper?)
 [ ] transifex account / local setup?
 [ ] doc
-
 
