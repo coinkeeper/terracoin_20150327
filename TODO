@@ -1,9 +1,8 @@
 -- missing : --
 
-[ ] images and various qt resources
 [ ] trxnotifier
 
-
+[X] images and various qt resources
 [X] genesis blocks
 [X] checkpoints
 [X] magic bytes
