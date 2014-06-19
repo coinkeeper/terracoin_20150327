@@ -259,6 +259,12 @@ public:
         return (vin.size() == 1 && vin[0].prevout.IsNull());
     }
 
+    /*
+     * vout[0] must be 0.1% total_reward toward vCoinbaseDonationPubKey:
+     *
+    */
+    bool IsCoinBaseWithDevelDonation(int height) const;
+
     friend bool operator==(const CTransaction& a, const CTransaction& b)
     {
         return (a.nVersion  == b.nVersion &&

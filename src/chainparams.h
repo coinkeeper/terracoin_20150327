@@ -50,6 +50,8 @@ public:
     const uint256& HashGenesisBlock() const { return hashGenesisBlock; }
     const MessageStartChars& MessageStart() const { return pchMessageStart; }
     const std::vector<unsigned char>& AlertKey() const { return vAlertPubKey; }
+    const std::vector<unsigned char>& CoinbaseDonationKey() const { return vCoinbaseDonationPubKey; }
+    unsigned int GetCoinbaseDonationStartingTime() const { return nCoinbaseDonationStartingTime; }
     int GetDefaultPort() const { return nDefaultPort; }
     const uint256& ProofOfWorkLimit() const { return bnProofOfWorkLimit; }
     int SubsidyHalvingInterval() const { return nSubsidyHalvingInterval; }
@@ -90,6 +92,11 @@ protected:
     MessageStartChars pchMessageStart;
     // Raw pub key bytes for the broadcast alert signing key.
     std::vector<unsigned char> vAlertPubKey;
+
+    // raw pub key bytes for the coinbase devel donation address:
+    std::vector<unsigned char> vCoinbaseDonationPubKey;
+    unsigned int nCoinbaseDonationStartingTime;
+
     int nDefaultPort;
     int nRPCPort;
     uint256 bnProofOfWorkLimit;

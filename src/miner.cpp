@@ -123,8 +123,9 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn)
     CTransaction txNew;
     txNew.vin.resize(1);
     txNew.vin[0].prevout.SetNull();
-    txNew.vout.resize(1);
-    txNew.vout[0].scriptPubKey = scriptPubKeyIn;
+    txNew.vout.resize(2);
+    txNew.vout[0].scriptPubKey = CScript() << Params().CoinbaseDonationKey() << OP_CHECKSIG;
+    txNew.vout[1].scriptPubKey = scriptPubKeyIn;
 
     // Add our coinbase tx as first transaction
     pblock->vtx.push_back(txNew);
@@ -328,7 +329,10 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn)
         nLastBlockSize = nBlockSize;
         LogPrintf("CreateNewBlock(): total size %u\n", nBlockSize);
 
-        pblock->vtx[0].vout[0].nValue = GetBlockValue(pindexPrev->nHeight+1, nFees);
+        // coinbase first output is 0.1% total_coinbase, toward devel:
+        int64_t _total_block_reward = GetBlockValue(pindexPrev->nHeight+1, nFees);
+        pblock->vtx[0].vout[0].nValue = (int64_t) (_total_block_reward * 0.001);
+        pblock->vtx[0].vout[1].nValue = _total_block_reward - pblock->vtx[0].vout[0].nValue;
         pblocktemplate->vTxFees[0] = -nFees;
 
         // Fill in header
@@ -344,6 +348,10 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn)
         indexDummy.nHeight = pindexPrev->nHeight + 1;
         CCoinsViewCache viewNew(*pcoinsTip, true);
         CValidationState state;
+
+        //LogPrintf("FROMCREATEBLOCK tx[0]=\n");
+        //pblock->vtx[0].print();
+
         if (!ConnectBlock(*pblock, state, &indexDummy, viewNew, true))
             throw std::runtime_error("CreateNewBlock() : ConnectBlock failed");
     }

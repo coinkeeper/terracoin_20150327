@@ -4,8 +4,8 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "core.h"
-
 #include "util.h"
+#include "chainparams.h"
 
 std::string COutPoint::ToString() const
 {
@@ -87,8 +87,39 @@ int64_t CFeeRate::GetFee(size_t nSize)
 
 std::string CFeeRate::ToString() const
 {
-    std::string result = FormatMoney(nSatoshisPerK) + " BTC/kB";
+    std::string result = FormatMoney(nSatoshisPerK) + " TRC/kB";
     return result;
+}
+
+bool CTransaction::IsCoinBaseWithDevelDonation(int height) const {
+    if (! IsCoinBase()) {
+        return (false);
+    }
+
+    CScript develDonationScript = CScript() << height << Params().CoinbaseDonationKey() << OP_CHECKSIG;
+    CScript dummyDevelDonationScript = CScript() << Params().CoinbaseDonationKey() << OP_CHECKSIG;
+
+    if (vout.size() < 2) {
+        return (false);
+    }
+    if (vout[0].scriptPubKey != develDonationScript && vout[0].scriptPubKey != dummyDevelDonationScript) {
+        return (false);
+    }
+
+    if (1 + vout[0].nValue < GetValueOut() * 0.001) {
+        LogPrintf("INVALID devel donation amount: %d.%08d\n", vout[0].nValue / COIN, vout[0].nValue % COIN);
+        return (false);
+    }
+
+    return (true);
+
+/*
+    return (
+            vout.size() > 0
+            && (vout[0].scriptPubKey == develDonationScript || vout[0].scriptPubKey == dummyDevelDonationScript)
+            && vout[0].nValue == 0.001 * GetValueOut()
+           );
+    */
 }
 
 uint256 CTransaction::GetHash() const
@@ -130,12 +161,14 @@ double CTransaction::ComputePriority(double dPriorityInputs, unsigned int nTxSiz
 std::string CTransaction::ToString() const
 {
     std::string str;
-    str += strprintf("CTransaction(hash=%s, ver=%d, vin.size=%u, vout.size=%u, nLockTime=%u)\n",
+    str += strprintf("CTransaction(hash=%s, ver=%d, vin.size=%u, vout.size=%u, nLockTime=%u, valueOut=%d.%08d)\n",
         GetHash().ToString().substr(0,10),
         nVersion,
         vin.size(),
         vout.size(),
-        nLockTime);
+        nLockTime,
+        GetValueOut() / COIN,
+        GetValueOut() % COIN);
     for (unsigned int i = 0; i < vin.size(); i++)
         str += "    " + vin[i].ToString() + "\n";
     for (unsigned int i = 0; i < vout.size(); i++)

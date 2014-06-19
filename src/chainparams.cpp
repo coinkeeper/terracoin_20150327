@@ -78,6 +78,8 @@ public:
         pchMessageStart[2] = 0xbe;
         pchMessageStart[3] = 0x56;
         vAlertPubKey = ParseHex("04b79d46f177ae69578c2f206be096a22e2de73ad6296ddf9c330faa32b249f63028b039c2cdb7cba0d0b034f66f0c28b8131ec4e6dc9ed67dcedddacdf218f305");
+        vCoinbaseDonationPubKey = ParseHex("0404824f90982d1835e21f3cda8f0a14e4dc00df59046e06cc4dcfc47e824b66da36e17483cd4bd48c72fbc5120cafcbd6288bc828f379606e5b534ecbe70b1ecb");
+        nCoinbaseDonationStartingTime = 1404777600; // july 8th 2014 00:00
         nDefaultPort = 13333;
         nRPCPort = 13332;
         bnProofOfWorkLimit = ~uint256(0) >> 32;
@@ -166,6 +168,9 @@ public:
         pchMessageStart[2] = 0xbe;
         pchMessageStart[3] = 0x56;
         vAlertPubKey = ParseHex("0415e63deb4a13fc9aa182121fd8b3cc582c205f57dabdf291b71e2c298060cec4f06bc3806485f45f19d07e48c1e1874fbab82ad7b8420866914ee00aeac75291");
+        vCoinbaseDonationPubKey = ParseHex("04326eef42c58f51526a7ce235d83f5ff7f1b2fc9e33a8f4d7b0bf5aa105b301b0bdcdf70b5cf44d85cad17864467833ca833e58487f705a2cbe3a446510b892c8");
+        nCoinbaseDonationStartingTime = 1403178387;
+
         nDefaultPort = 23333;
         nRPCPort = 23332;
         nEnforceBlockUpgradeMajority = 51;

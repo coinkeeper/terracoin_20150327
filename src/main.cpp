@@ -1848,6 +1848,14 @@ bool ConnectBlock(CBlock& block, CValidationState& state, CBlockIndex* pindex, C
                                block.vtx[0].GetValueOut(), GetBlockValue(pindex->nHeight, nFees)),
                                REJECT_INVALID, "bad-cb-amount");
 
+    // devel donations after Params().GetCoinbaseDonationStartingTime() :
+    // 0.1% of coinbase total output goes to devel
+    if (pindex->nTime >= Params().GetCoinbaseDonationStartingTime()) {
+        if (! block.vtx[0].IsCoinBaseWithDevelDonation(pindex->nHeight))
+            return state.DoS(100, error("ConnectBlock() : coinbase does not include devel donation)"),
+                               REJECT_INVALID, "bad-cb-donation-amount");
+    }
+
     if (!control.Wait())
         return state.DoS(100, false);
     int64_t nTime2 = GetTimeMicros() - nStart;
@@ -2400,6 +2408,16 @@ bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bo
             return state.DoS(100, error("CheckBlock() : more than one coinbase"),
                              REJECT_INVALID, "bad-cb-multiple");
 
+    // devel donations after Params().GetCoinbaseDonationStartingTime() :
+    // 0.1% of coinbase total output goes to devel
+    if (block.nTime >= Params().GetCoinbaseDonationStartingTime()) {
+        if (! block.vtx[0].IsCoinBaseWithDevelDonation(0)) {
+            //block.print();
+            return state.DoS(100, error("ConnectBlock() : coinbase does not include devel donation"),
+                REJECT_INVALID, "bad-cb-donation-amount");
+        }
+    }
+
     // Check transactions
     BOOST_FOREACH(const CTransaction& tx, block.vtx)
         if (!CheckTransaction(tx, state))
@@ -2535,6 +2553,13 @@ bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, 
             pindex->nStatus |= BLOCK_FAILED_VALID;
             return state.DoS(100, error("AcceptBlock() : block height mismatch in coinbase"), REJECT_INVALID, "bad-cb-height");
         }
+    }
+
+    // devel donations after Params().GetCoinbaseDonationStartingTime() :
+    // 0.1% of coinbase total output goes to devel
+    if (block.nTime >= Params().GetCoinbaseDonationStartingTime()) {
+        if (! block.vtx[0].IsCoinBaseWithDevelDonation(nHeight))
+            return state.DoS(100, error("AcceptBlock() : coinbase does not include devel donation"), REJECT_INVALID, "bad-cb-donation-amount");
     }
 
     // Write block to history file
