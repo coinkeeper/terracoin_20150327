@@ -123,9 +123,15 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn)
     CTransaction txNew;
     txNew.vin.resize(1);
     txNew.vin[0].prevout.SetNull();
+    /*
+     * donations DISABLED - too many consequences for pool operators
+     *
     txNew.vout.resize(2);
     txNew.vout[0].scriptPubKey = CScript() << Params().CoinbaseDonationKey() << OP_CHECKSIG;
     txNew.vout[1].scriptPubKey = scriptPubKeyIn;
+    */
+    txNew.vout.resize(1);
+    txNew.vout[0].scriptPubKey = scriptPubKeyIn;
 
     // Add our coinbase tx as first transaction
     pblock->vtx.push_back(txNew);
@@ -330,9 +336,14 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn)
         LogPrintf("CreateNewBlock(): total size %u\n", nBlockSize);
 
         // coinbase first output is 0.1% total_coinbase, toward devel:
+        /*
+         * DISABLED - too many consequences for pool operatos
+         *
         int64_t _total_block_reward = GetBlockValue(pindexPrev->nHeight+1, nFees);
         pblock->vtx[0].vout[0].nValue = (int64_t) (_total_block_reward * 0.001);
         pblock->vtx[0].vout[1].nValue = _total_block_reward - pblock->vtx[0].vout[0].nValue;
+        */
+        pblock->vtx[0].vout[0].nValue = GetBlockValue(pindexPrev->nHeight+1, nFees);
         pblocktemplate->vTxFees[0] = -nFees;
 
         // Fill in header
@@ -487,7 +498,7 @@ bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
     LogPrintf("BitcoinMiner:\n");
     LogPrintf("proof-of-work found  \n  hash: %s  \ntarget: %s\n", hash.GetHex(), hashTarget.GetHex());
     pblock->print();
-    LogPrintf("generated %s\n", FormatMoney(pblock->vtx[0].vout[0].nValue));
+    LogPrintf("generated %s\n", FormatMoney(pblock->vtx[0].vout[1].nValue));
 
     // Found a solution
     {

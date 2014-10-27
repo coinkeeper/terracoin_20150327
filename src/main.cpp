@@ -1850,11 +1850,15 @@ bool ConnectBlock(CBlock& block, CValidationState& state, CBlockIndex* pindex, C
 
     // devel donations after Params().GetCoinbaseDonationStartingTime() :
     // 0.1% of coinbase total output goes to devel
+    /*
+     * DISABLED - too many consequences for remaining pool operators.
+     *
     if (pindex->nTime >= Params().GetCoinbaseDonationStartingTime()) {
         if (! block.vtx[0].IsCoinBaseWithDevelDonation(pindex->nHeight))
             return state.DoS(100, error("ConnectBlock() : coinbase does not include devel donation)"),
                                REJECT_INVALID, "bad-cb-donation-amount");
     }
+    */
 
     if (!control.Wait())
         return state.DoS(100, false);
@@ -2410,6 +2414,9 @@ bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bo
 
     // devel donations after Params().GetCoinbaseDonationStartingTime() :
     // 0.1% of coinbase total output goes to devel
+    /*
+     * DISABLED - too many consequences for pool operators
+     *
     if (block.nTime >= Params().GetCoinbaseDonationStartingTime()) {
         if (! block.vtx[0].IsCoinBaseWithDevelDonation(0)) {
             //block.print();
@@ -2417,6 +2424,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bo
                 REJECT_INVALID, "bad-cb-donation-amount");
         }
     }
+    */
 
     // Check transactions
     BOOST_FOREACH(const CTransaction& tx, block.vtx)
@@ -2557,10 +2565,14 @@ bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, 
 
     // devel donations after Params().GetCoinbaseDonationStartingTime() :
     // 0.1% of coinbase total output goes to devel
+    /*
+     * DISABLED - too many consequences for pool operators
+     *
     if (block.nTime >= Params().GetCoinbaseDonationStartingTime()) {
         if (! block.vtx[0].IsCoinBaseWithDevelDonation(nHeight))
             return state.DoS(100, error("AcceptBlock() : coinbase does not include devel donation"), REJECT_INVALID, "bad-cb-donation-amount");
     }
+    */
 
     // Write block to history file
     try {

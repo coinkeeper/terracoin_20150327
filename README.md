@@ -38,7 +38,7 @@ or more developpers works on the same task.
 
 We now accept donations towards development and hosting costs :
 
-TRC: 1LpnJb98gXwdzriYXnMe2qryW5915Ysg9a
+TRC: 1959GYKzy4nw8y5KDFmQ96BoQvnRnbAPpD
 
 BTC: 1JaqW8LyfShWaGRnDptF2rBkyMwYAW1aR2
 
